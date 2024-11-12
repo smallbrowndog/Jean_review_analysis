@@ -37,11 +37,8 @@ def crawl_brand():
     sleep(5)
 
     brand_code = []  # 브랜드, 의류코드를 저장할 리스트
+    seen_items = set()  # 중복 수집 방지를 위한 세트
     scroll_position = 0  # 현재 스크롤 위치를 저장하는 변수
-
-    # 스크롤을 내려 추가 로드
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    sleep(random.uniform(4, 15))
 
     while True:
         try:
@@ -61,16 +58,16 @@ def crawl_brand():
         price_containers = driver.find_elements(By.CSS_SELECTOR, "#commonLayoutContents > div.sc-zjwr47-0.vSiPV > div:nth-child(2) > div.sc-f39157-1.dqBVvr > div > div > div > div:nth-child(1) > div > div:nth-child(1) > div.sc-bZHSRq.hOJOdn > div > div.sc-ilxebA.hQIHhD > div > span:nth-child(2)")
         info_containers = driver.find_elements(By.CSS_SELECTOR, "a.gtm-select-item")
 
-
-        # # 각각의 요소에서 텍스트를 추출하여 출력
-        # print("브랜드:", [element.text for element in brand_elements])
-        # print("제품명:", [element.text for element in Pname_containers])
-        # print("가격:", [element.text for element in price_containers])
-
-
         # 정보를 추출하여 리스트에 저장
         for i in range(len(Pname_containers)):
             try:
+                # 제품 고유 코드
+                ClothesCode = info_containers[i].get_attribute("data-item-id")
+
+                # 이미 수집된 아이템이면 건너뜀
+                if ClothesCode in seen_items:
+                    continue
+
                 # 브랜드 추출
                 Brand = brand_elements[i].text if i < len(brand_elements) else "브랜드 정보 없음"
 
@@ -80,16 +77,16 @@ def crawl_brand():
                 # 가격 추출
                 Price = price_containers[i].text if i < len(price_containers) else "가격 정보 없음"
 
-                # 코드 추출
-                ClothesCode = info_containers[i].get_attribute("data-item-id")
-
                 # 데이터 리스트에 추가
                 brand_code.append({
                     "Brand": Brand,
                     "Pname": Pname,
                     "Price": Price,
-                    "Clothesode": ClothesCode
+                    "ClothesCode": ClothesCode
                 })
+
+                # 수집된 아이템으로 추가
+                seen_items.add(ClothesCode)
 
                 # 진행 상황 출력
                 print(f"브랜드: {Brand} | 제품명: {Pname} | 가격: {Price} | 의류코드: {ClothesCode}")

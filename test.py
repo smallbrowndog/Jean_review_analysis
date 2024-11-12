@@ -28,6 +28,7 @@ def crawl_brand():
     sleep(5)  # 페이지가 완전히 로드되도록 초기 대기 시간 설정
 
     brand_code = []  # 결과 저장 리스트
+    seen_items = set()  # 중복 수집 방지를 위한 세트
 
     # 상위 컨테이너 요소 찾기
     main_container_selector = "#commonLayoutContents > div.sc-zjwr47-0.vSiPV > div:nth-child(2) > div.sc-f39157-1.dqBVvr"
