@@ -1,4 +1,3 @@
-import csv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -11,112 +10,63 @@ import random
 # ChromeDriver 경로 설정
 chrome_driver_path = "./chromedriver-win64/chromedriver.exe"  # 사용자의 경로로 업데이트
 
-# Chrome 옵션 설정 (Anti-Detection)
+# Chrome 옵션 설정
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
-options.add_argument("--disable-blink-features")
-options.add_argument("--disable-blink-features=AutomationControlled")
 
 # Chrome Driver 설정
 service = Service(executable_path=chrome_driver_path)
 driver = webdriver.Chrome(service=service, options=options)
 
-# Anti-Detection 스크립트 - Webdriver 속성을 숨김
-driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-    "source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-})
+# 스크래핑할 URL
+brand_url = "https://www.musinsa.com/brand/musinsastandard?categoryCode=003002&gf=A"
 
 
-# 리뷰 크롤링 함수
-def crawl_reviews(product_url):
-    # 입력받은 URL 열기
-    driver.get(product_url)
+def crawl_brand():
+    driver.get(brand_url)
+    sleep(5)  # 페이지가 완전히 로드되도록 초기 대기 시간 설정
 
-    # 페이지가 완전히 로드되도록 초기 대기 시간 설정
-    sleep(20)
+    brand_code = []  # 결과 저장 리스트
+    seen_items = set()  # 중복 수집 방지를 위한 세트
 
-    # 리뷰 스크래핑 함수
-    def scrape_reviews():
-        reviews_data = []  # 각 리뷰 데이터를 저장할 리스트
-        last_height = driver.execute_script("return document.body.scrollHeight")
+    # 상위 컨테이너 요소 찾기
+    main_container_selector = "#commonLayoutContents > div.sc-zjwr47-0.vSiPV > div:nth-child(2) > div.sc-f39157-1.dqBVvr"
+    main_container = driver.find_element(By.CSS_SELECTOR, main_container_selector)
 
-        while True:
-            # 리뷰가 로드될 때까지 대기
-            try:
-                WebDriverWait(driver, 10).until(
-                    EC.presence_of_all_elements_located(
-                        (By.CSS_SELECTOR, "p.text-body_13px_reg.ReviewContentExpandable__TextContainer-sc-14vwok6-1"))
-                )
-            except TimeoutException:
-                print("리뷰가 시간 내에 로드되지 않았습니다.")
-                break
+    # 반복적으로 `data-index` 값이 있는 div들 탐색
+    i = 0
+    while True:
+        try:
+            item_selector = f"{main_container_selector} > div[data-index='{i}']"
+            item_container = driver.find_element(By.CSS_SELECTOR, item_selector)
 
-            # 페이지에서 리뷰 내용, 평점, 날짜 컨테이너 찾기
-            review_elements = driver.find_elements(By.CSS_SELECTOR,
-                                                   "p.text-body_13px_reg.ReviewContentExpandable__TextContainer-sc-14vwok6-1")
-            info_containers = driver.find_elements(By.CSS_SELECTOR, "div.ReviewSubInfo__Container-sc-1j4ti7g-0")
+            # 제품명, 가격, 코드 추출
+            pname_selector = "div.sc-ilxebA.hQIHhD > a"  # 제품명을 나타내는 CSS Selector
+            price_selector = "div.sc-ilxebA.hQIHhD > div > span:nth-child(2)"  # 가격을 나타내는 CSS Selector
+            code_selector = "a.gtm-select-item"  # ClothesCode의 CSS Selector
 
-            # 정보를 추출하여 리스트에 저장
-            for i in range(len(review_elements)):
-                try:
-                    # 리뷰 텍스트 추출
-                    review_text = review_elements[i].text
+            Pname = item_container.find_element(By.CSS_SELECTOR, pname_selector).text
+            Price = item_container.find_element(By.CSS_SELECTOR, price_selector).text
+            ClothesCode = item_container.find_element(By.CSS_SELECTOR, code_selector).get_attribute("data-item-id")
 
-                    # 평점과 날짜 추출
-                    rating = info_containers[i].find_element(By.CSS_SELECTOR,
-                                                             "span.text-body_14px_semi.font-pretendard").text
-                    review_date = info_containers[i].find_element(By.CSS_SELECTOR,
-                                                                  "span.text-body_13px_reg.text-gray-600.font-pretendard").text
+            # 추출한 정보를 저장
+            brand_code.append({
+                "Pname": Pname,
+                "Price": Price,
+                "ClothesCode": ClothesCode
+            })
 
-                    # 데이터 리스트에 추가
-                    reviews_data.append({
-                        "Review": review_text,
-                        "Rating": rating,
-                        "Date": review_date
-                    })
+            print(f"제품명: {Pname} | 가격: {Price} | 의류코드: {ClothesCode}")
 
-                    # 진행 상황 출력
-                    print(f"리뷰 발견: {review_text[:]}... | 평점: {rating} | 작성일자: {review_date}")
+            i += 1  # 다음 data-index로 이동
 
-                except NoSuchElementException:
-                    print(f"{i}번째 리뷰에서 평점 또는 날짜를 찾을 수 없습니다.")
-                    continue
+        except NoSuchElementException:
+            print("모든 제품을 탐색했습니다.")
+            break
 
-            # 스크롤을 내려 추가 리뷰 로드
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            sleep(random.uniform(4, 7))
-
-            # 새로운 콘텐츠가 로드되었는지 확인
-            new_height = driver.execute_script("return document.body.scrollHeight")
-            if new_height == last_height:
-                print("더 이상 로드할 리뷰가 없습니다.")
-                break
-            last_height = new_height
-
-        return reviews_data
-
-    # 리뷰 데이터 스크래핑 시작
-    reviews_data = scrape_reviews()
-    print(f"총 스크래핑된 리뷰 수: {len(reviews_data)}")
-
-    # CSV 파일로 저장
-    with open("musinsa_reviews.csv", "w", newline="", encoding="cp949") as csvfile:
-        fieldnames = ["Review", "Rating", "Date"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()  # 헤더 작성
-        for review in reviews_data:
-            writer.writerow(review)  # 각 리뷰 데이터 작성
-
-    print("데이터가 musinsa_reviews.csv 파일에 저장되었습니다.")
+    return brand_code
 
 
-# 예시: 특정 제품 URL을 이용해 크롤링 실행
-try:
-    crawl_reviews("https://www.musinsa.com/review/goods/1666442")
-except Exception as e:
-    print(f"오류가 발생했습니다: {e}")
-finally:
-    driver.quit()
-
-print("스크래핑 완료.")
+# 실행
+crawl_brand()

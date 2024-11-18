@@ -55,10 +55,11 @@ def crawl_brand():
         # 페이지에서 브랜드, 의류코드, 제품명, 가격 컨테이너 찾기
         brand_elements = driver.find_elements(By.CSS_SELECTOR,
                                                "text-etc_22px_med font-semibold sc-hm89qk-5 kXAuqX text-black font-pretendard")
-        info_containers = driver.find_elements(By.CSS_SELECTOR, "div.sc-f39157-1 dqBVvr")
+        info_containers = driver.find_elements(By.CSS_SELECTOR, "#commonLayoutContents > div.sc-zjwr47-0.vSiPV > div:nth-child(2) > div.sc-f39157-1.dqBVvr > div > div > div > div:nth-child(1) > div > div:nth-child(1) > div.sc-bZHSRq.hOJOdn > div > div.sc-ilxebA.hQIHhD > a")
+        price_containers = driver.find_elements(By.CSS_SELECTOR, "#commonLayoutContents > div.sc-zjwr47-0.vSiPV > div:nth-child(2) > div.sc-f39157-1.dqBVvr > div > div > div > div:nth-child(1) > div > div:nth-child(1) > div.sc-bZHSRq.hOJOdn > div > div.sc-ilxebA.hQIHhD > div > span:nth-child(2)")
 
         # 정보를 추출하여 리스트에 저장
-        for i in range(0, 10):
+        for i in range(len(brand_elements)):
             try:
                 # 브랜드 추출
                 Brand = brand_elements[i].text
