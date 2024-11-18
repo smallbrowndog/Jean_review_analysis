@@ -71,12 +71,12 @@ def crawl_brand():
                 brand_code.append({
                     "Brand": Brand,
                     "ClothesCode": ClothesCode,
-                    "PName": PName,
-                    "Price": Price
+                    # "PName": PName,
+                    # "Price": Price
                 })
 
                 # 진행 상황 출력
-                print(f"브랜드: {review_text[:]}... | 의류: {ClothesCode}")
+                # print(f"브랜드: {review_text[:]}... | 의류: {ClothesCode}")
 
             except NoSuchElementException:
                 print(f"브랜드 및 의류코드를 검색할 수 없습니다")
