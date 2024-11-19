@@ -29,34 +29,30 @@ def get_driver():
 
 def scrape_reviews(driver, url, brand, clothing_code):
     driver.get(url)
-    sleep(2)  # 페이지 로딩을 위한 초기 대기
+    sleep(10)  # 페이지 로딩을 위한 초기 대기
 
     reviews_data = []
     last_height = driver.execute_script("return document.body.scrollHeight")
-    MAX_SCROLLS = 5
     scroll_attempts = 0
 
-    while scroll_attempts < MAX_SCROLLS:
+    while True:
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, 30).until(
                 EC.presence_of_all_elements_located(
-                    (By.CSS_SELECTOR, "span.text-title_18px_med.font-pretendard")
+                    (By.CSS_SELECTOR, "#commonLayoutContents > section > div > div.GoodsReviewListSection__Container-sc-1x35scp-0.dMdlme > div:nth-child(8) > div > div > div")
                 )
             )
         except TimeoutException:
-            print("리뷰가 시간 내에 로드되지 않았습니다. 디버깅용 HTML 저장...")
-            with open(f"debug_{brand}_{clothing_code}.html", "w", encoding="utf-8") as f:
-                f.write(driver.page_source)
+            print("리뷰가 시간 내에 로드되지 않았습니다.")
             break
 
-        review_elements = driver.find_elements(By.CSS_SELECTOR, "span.text-title_18px_med.font-pretendard")
-        info_containers = driver.find_elements(By.CSS_SELECTOR, "div.GoodsReviewItem__container-sc-4tx713-0.fa-Dhsj")
+        review_elements = driver.find_elements(By.CSS_SELECTOR, "span.text-body_13px_reg.TruncateContent__FullText-sc-5tx4vi-2.jBjzto.font-pretendard")
+        info_containers = driver.find_elements(By.CSS_SELECTOR, "#commonLayoutContents > section > div > div.GoodsReviewListSection__Container-sc-1x35scp-0.dMdlme > div:nth-child(8) > div > div > div")
 
-        if not review_elements or not info_containers:
-            print("리뷰 요소를 찾지 못했습니다. HTML을 저장합니다.")
-            with open(f"debug_{brand}_{clothing_code}.html", "w", encoding="utf-8") as f:
-                f.write(driver.page_source)
-            return []
+        if not review_elements:
+            print("리뷰 요소를 찾지 못했습니다.")
+        elif not info_containers:
+            print("별점 요소를 찾지 못했습니다.")
 
         min_length = min(len(review_elements), len(info_containers))
         for i in range(min_length):
@@ -73,9 +69,8 @@ def scrape_reviews(driver, url, brand, clothing_code):
                     "작성일": review_date
                 })
 
-                if len(reviews_data) >= 10:
-                    print("리뷰 10개를 수집했습니다. 크롤링 종료.")
-                    return reviews_data
+
+                return reviews_data
 
             except NoSuchElementException:
                 print(f"리뷰 {i}에서 필요한 정보를 찾을 수 없습니다.")
@@ -120,7 +115,7 @@ def process_urls(folder_path):
                 print(f"'{brand_name}'의 드라이버가 종료되었습니다.")
 
     output_file = "all_reviews.csv"
-    with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
+    with open(output_file, "w", newline="", encoding="utf-8-sig") as csvfile:
         fieldnames = ["브랜드", "의류코드", "리뷰", "별점", "작성일"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
