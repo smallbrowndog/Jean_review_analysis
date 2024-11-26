@@ -1,18 +1,15 @@
 import csv
+import os
+import random
+import pandas as pd
 from itertools import count
-
+from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from time import sleep
-import random
-import pandas as pd
-import os
-
-from profe_code import reviews_data
 
 # ChromeDriver 경로
 chrome_driver_path = "./chromedriver-win64/chromedriver.exe"
@@ -57,19 +54,15 @@ def scrape_reviews(driver, url, brand, clothing_code):
             sleep(5)
             continue
 
-        # 리뷰 요소 및 별점 요소 찾기
-        review_elements = driver.find_elements(By.CSS_SELECTOR, "span.text-body_13px_reg.TruncateContent__FullText-sc-5tx4vi-2.jBjzto.font-pretendard")
         info_containers = driver.find_elements(By.CSS_SELECTOR, "#commonLayoutContents > section > div > div.GoodsReviewListSection__Container-sc-1x35scp-0.dMdlme > div:nth-child(8) > div > div > div")
 
-        if not review_elements:
+        if not info_containers:
             print("리뷰 요소를 찾지 못했습니다.")
-        elif not info_containers:
-            print("별점 요소를 찾지 못했습니다.")
 
-        min_length = min(len(review_elements), len(info_containers))
+        min_length = len(info_containers)
         for i in range(min_length):
             try:
-                review_text = review_elements[i].text if i < len(review_elements) else "리뷰 없음"
+                review_text = info_containers[i].find_element(By.CSS_SELECTOR, "span > span:nth-child(1) > span").text
                 rating = info_containers[i].find_element(By.CSS_SELECTOR, "span.text-body_13px_semi.font-pretendard").text
                 review_date = info_containers[i].find_element(By.CSS_SELECTOR, "span.text-body_13px_reg.text-gray-500.font-pretendard").text
 
@@ -85,7 +78,6 @@ def scrape_reviews(driver, url, brand, clothing_code):
                 print(f"리뷰 {i}에서 필요한 정보를 찾을 수 없습니다.")
                 continue
 
-        # 페이지를 스크롤하여 더 많은 리뷰 로드 시도
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         sleep(random.uniform(2, 4))
         new_height = driver.execute_script("return document.body.scrollHeight")
@@ -101,11 +93,14 @@ def scrape_reviews(driver, url, brand, clothing_code):
 # 여러 URL을 처리하는 메인 함수
 def process_urls(folder_path):
     txt_files = [file for file in os.listdir(folder_path) if file.endswith(".txt")]
-    all_reviews = []
+    all_reviews = []  # 모든 리뷰 데이터를 저장할 리스트
 
     for txt_file in txt_files:
         file_path = os.path.join(folder_path, txt_file)
         brand_name = os.path.splitext(txt_file)[0]
+
+        # 각 txt 파일에 대한 리뷰 데이터를 저장할 리스트
+        reviews_for_current_file = []
 
         with open(file_path, "r") as file:
             urls = [line.strip() for line in file.readlines()]
@@ -117,21 +112,36 @@ def process_urls(folder_path):
             try:
                 clothing_code = url.split("/")[-1]
                 reviews = scrape_reviews(driver, url, brand_name, clothing_code)
-                all_reviews.extend(reviews)
+                reviews_for_current_file.extend(reviews)
+                all_reviews.extend(reviews)  # 모든 리뷰 데이터에 추가
             except Exception as e:
                 print(f"'{brand_name}' 처리 중 오류 발생: {e}")
             finally:
                 driver.quit()
                 print(f"'{brand_name}'의 드라이버가 종료되었습니다.")
 
-    output_file = "all_reviews.csv"
-    with open(output_file, "w", newline="", encoding="utf-8-sig") as csvfile:
+        # 각 txt 파일에 대한 리뷰 데이터를 별도의 CSV 파일로 저장
+        if reviews_for_current_file:
+            output_file = f"{brand_name}_reviews.csv"
+            with open(output_file, "w", newline="", encoding="utf-8-sig") as csvfile:
+                fieldnames = ["브랜드", "의류코드", "리뷰", "별점", "작성일"]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(reviews_for_current_file)
+
+            print(f"'{brand_name}' 리뷰 데이터가 {output_file}에 저장되었습니다.")
+        else:
+            print(f"'{brand_name}'에 대한 리뷰 데이터가 없습니다. CSV 파일을 생성하지 않습니다.")
+
+    # 모든 리뷰 데이터를 한 번에 CSV로 저장
+    output_file_all = "all_reviews.csv"
+    with open(output_file_all, "w", newline="", encoding="utf-8-sig") as csvfile:
         fieldnames = ["브랜드", "의류코드", "리뷰", "별점", "작성일"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(all_reviews)
 
-    print(f"모든 리뷰 데이터가 {output_file}에 저장되었습니다.")
+    print(f"모든 리뷰 데이터가 {output_file_all}에 저장되었습니다.")
 
 # 스크립트 실행
 if __name__ == "__main__":
