@@ -9,10 +9,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 # ChromeDriver 경로
-chrome_driver_path = "./chromedriver-win64/chromedriver.exe"
+chrome_driver_path = "../chromedriver-win64/chromedriver.exe"
 
 # Chrome 옵션 설정 (Anti-Detection)
 def get_driver():
@@ -31,21 +31,17 @@ def get_driver():
 def scrape_reviews(driver, url, brand, clothing_code):
     driver.get(url)
     sleep(10)  # 페이지 로딩을 위한 초기 대기
-    refresh_attempts = 0  # 새로고침 시도 횟수 제한
 
     reviews_data = []
-    seen_reviews = set()  # 중복 체크를 위한 집합
     last_height = driver.execute_script("return document.body.scrollHeight")
     scroll_attempts = 0
-    max_scroll_attempts = 5  # 최대 스크롤 시도 횟수
-    scroll_increment = 300  # 스크롤 시 이동할 픽셀 수
+    refresh_attempts = 0  # 새로고침 시도 횟수 제한
 
     while True:
         try:
             WebDriverWait(driver, 10).until(
                 EC.presence_of_all_elements_located(
-                    (By.CSS_SELECTOR,
-                     "#commonLayoutContents > section > div > div.GoodsReviewListSection__Container-sc-1x35scp-0.dMdlme > div:nth-child(8) > div > div > div")
+                    (By.CSS_SELECTOR, "#commonLayoutContents > section > div > div.GoodsReviewListSection__Container-sc-1x35scp-0.dMdlme > div:nth-child(8) > div > div > div")
                 )
             )
         except TimeoutException:
@@ -58,8 +54,14 @@ def scrape_reviews(driver, url, brand, clothing_code):
             sleep(5)
             continue
 
+        info_containers = driver.find_elements(By.CSS_SELECTOR, "#commonLayoutContents > section > div > div.GoodsReviewListSection__Container-sc-1x35scp-0.dMdlme > div:nth-child(8) > div > div > div")
+
+        if not info_containers:
+            print("리뷰 요소를 찾지 못했습니다.")
+
         # '낮은 평점순' 버튼 클릭
         try:
+            # '정렬 버튼'을 클릭하여 '낮은 평점순'으로 변경하기
             sort_button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, "//span[text()='유용한순']"))
             )
@@ -74,41 +76,15 @@ def scrape_reviews(driver, url, brand, clothing_code):
         except TimeoutException:
             print("정렬 버튼을 찾거나 클릭할 수 없습니다.")
 
-        info_containers = driver.find_elements(By.CSS_SELECTOR, "#commonLayoutContents > section > div > div.GoodsReviewListSection__Container-sc-1x35scp-0.dMdlme > div:nth-child(8) > div > div > div")
-
-        if not info_containers:
-            print("리뷰 요소를 찾지 못했습니다.")
-            break
-
-        for container in info_containers:
+        min_length = len(info_containers)
+        for i in range(min_length):
             try:
-                # "더보기" 버튼 클릭 로직 추가
-                try:
-                    more_button = container.find_element(By.XPATH, ".//span[text()='더보기']")
-                    driver.execute_script("arguments[0].scrollIntoView(true);", more_button)  # 버튼이 보이도록 스크롤
-                    sleep(1)  # 스크롤 후 대기
-
-                    # JavaScript 클릭 사용
-                    driver.execute_script("arguments[0].click();", more_button)
-                    sleep(2)  # 버튼 클릭 후 잠시 대기
-                except NoSuchElementException:
-                    print("더보기 버튼이 없습니다. 다음 리뷰로 진행합니다.")
-                    continue  # 더보기 버튼이 없으면 다음 리뷰로 넘어감
-
-                # 리뷰 텍스트 수집
-                review_elements = container.find_elements(By.CSS_SELECTOR, "span > span:nth-child(1) > span")
+                review_elements = info_containers[i].find_elements(By.CSS_SELECTOR, "span > span:nth-child(1) > span")
                 review_text = "<br>".join([element.text for element in review_elements])  # 모든 리뷰를 줄바꿈으로 연결
-                rating = container.find_element(By.CSS_SELECTOR, "span.text-body_13px_semi.font-pretendard").text
-                review_date = container.find_element(By.CSS_SELECTOR, "span.text-body_13px_reg.text-gray-500.font-pretendard").text
+                rating = info_containers[i].find_element(By.CSS_SELECTOR, "span.text-body_13px_semi.font-pretendard").text
+                review_date = info_containers[i].find_element(By.CSS_SELECTOR, "span.text-body_13px_reg.text-gray-500.font-pretendard").text
                 print(review_text)
 
-                # 중복 체크
-                if review_text in seen_reviews:
-                    print("중복된 리뷰 발견:", review_text)
-                    continue  # 중복된 리뷰는 건너뜀
-
-                # 중복되지 않은 경우, 집합에 추가하고 데이터에 추가
-                seen_reviews.add(review_text)
                 reviews_data.append({
                     "브랜드": brand,
                     "의류코드": clothing_code,
@@ -118,15 +94,11 @@ def scrape_reviews(driver, url, brand, clothing_code):
                 })
 
             except NoSuchElementException:
-                print(f"리뷰 정보에서 필요한 요소를 찾을 수 없습니다.")
+                print(f"리뷰 {i}에서 필요한 정보를 찾을 수 없습니다.")
                 continue
-            except StaleElementReferenceException:
-                print("Stale element reference error 발생. 요소를 다시 찾습니다.")
-                break  # 현재 반복을 종료하고 다음 스크롤로 이동
 
-        # 스크롤을 조금씩 내리기
-        driver.execute_script(f"window.scrollTo(0, {last_height + scroll_increment});")
-        sleep(5)  # 스크롤 후 대기
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        sleep(random.uniform(2, 4))
         new_height = driver.execute_script("return document.body.scrollHeight")
         if new_height == last_height:
             print("더 이상 로드할 리뷰가 없습니다.")
@@ -182,7 +154,7 @@ def process_urls(folder_path):
             print(f"'{brand_name}'에 대한 리뷰 데이터가 없습니다. CSV 파일을 생성하지 않습니다.")
 
     # 모든 리뷰 데이터를 한 번에 CSV로 저장
-    output_file_all = "Data/Original_Data/all_reviews.csv"
+    output_file_all = "../Data/Original_Data/all_reviews.csv"
     with open(output_file_all, "w", newline="", encoding="utf-8-sig") as csvfile:
         fieldnames = ["브랜드", "의류코드", "리뷰", "별점", "작성일"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -193,4 +165,4 @@ def process_urls(folder_path):
 
 # 스크립트 실행
 if __name__ == "__main__":
-    process_urls("URL")
+    process_urls("../URL")
