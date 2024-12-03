@@ -134,7 +134,6 @@ def process_urls(folder_path):
             print(f"'{brand_name}'에 대한 리뷰 데이터가 없습니다. CSV 파일을 생성하지 않습니다.")
 
     # 모든 리뷰 데이터를 한 번에 CSV로 저장
-    output_file_all = "../Data/Original_Data/all_reviews.csv"
     with open(output_file_all, "w", newline="", encoding="utf-8-sig") as csvfile:
         fieldnames = ["브랜드", "의류코드", "리뷰", "별점", "작성일"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
