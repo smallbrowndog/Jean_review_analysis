@@ -1,9 +1,7 @@
-# 날짜를 변경하는 코드
-
 import pandas as pd
 from datetime import datetime, timedelta
 
-data = pd.read_csv('Data/Row_Data/all_row_reviews.csv')
+data = pd.read_csv('all_row_reviews.csv')
 print(data.info())
 
 # 기준 날짜 (24.12.03)
@@ -29,4 +27,24 @@ print(data)
 data_process = data.drop_duplicates(['리뷰'])
 print(data_process.info())
 
-data_process.to_csv('./Data/Processed_Data/processed_row_data.csv', index=False, encoding='utf-8-sig')
+# 0점 제거
+Zero_process = data_process[data_process['별점'] != 0]
+Zero_process.reset_index(inplace=True)
+
+print(Zero_process.info())
+
+# <br> 제거
+Zero_process.loc[:, '리뷰'] = Zero_process['리뷰'].str.replace('<br>', ' ', regex=True)
+Zero_process.loc[:, '리뷰'] = Zero_process['리뷰'].str.replace('더보기', ' ', regex=True)
+Zero_process = Zero_process.drop(columns=['index'])
+
+print(Zero_process.info())
+
+# 중복 값 제거
+Zero_process = Zero_process.drop_duplicates(subset=['리뷰'])
+Zero_process.reset_index(inplace=True)
+Zero_process = Zero_process.drop(columns=['index'])
+
+print(Zero_process.info())
+
+Zero_process.to_csv('./Data/Row_Data/Processed_Data/processed_row_data.csv', index=False, encoding='utf-8-sig')
