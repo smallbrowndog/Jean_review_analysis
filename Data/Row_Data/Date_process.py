@@ -47,4 +47,4 @@ Zero_process = Zero_process.drop(columns=['index'])
 
 print(Zero_process.info())
 
-Zero_process.to_csv('./Data/Row_Data/Processed_Data/processed_row_data.csv', index=False, encoding='utf-8-sig')
+Zero_process.to_csv('.processed_data.csv', index=False, encoding='utf-8-sig')
