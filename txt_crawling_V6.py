@@ -105,9 +105,12 @@ def scrape_reviews(driver, url, brand, clothing_code, sort_order):
                 print(rating)
                 print(review_date)
 
-                # 낮은 평점순일 때만 평점이 5인 경우 수집 중단
-                if sort_order == '낮은 평점순' and rating == "4":
-                    print("평점이 4인 리뷰를 발견했습니다. 수집을 중단합니다.")
+                # # 낮은 평점순일 때만 평점이 4인 경우 수집 중단
+                # if sort_order == '낮은 평점순' and rating == "4":
+                #     print("평점이 4인 리뷰를 발견했습니다. 수집을 중단합니다.")
+                # 높은 평점순일 때만 평점이 3인 경우 수집 중단
+                if sort_order == '높은 평점순' and rating == "3":
+                    print("평점이 3인 리뷰를 발견했습니다. 수집을 중단합니다.")
                     end_time = time()  # 종료 시간 기록
                     elapsed_time = end_time - start_time  # 소요 시간 계산
                     print(f'한 리뷰 수집에 걸린 시간: {format_time(elapsed_time)}')
@@ -165,7 +168,8 @@ def process_urls(folder_path):
             try:
                 clothing_code = url.split("/")[-1]
                 # for sort_order in ['낮은 평점순', '높은 평점순']:
-                for sort_order in ['낮은 평점순']:
+                # for sort_order in ['낮은 평점순']:
+                for sort_order in ['높은 평점순']:
                     reviews = scrape_reviews(driver, url, brand_name, clothing_code, sort_order)
                     reviews_for_current_file.extend(reviews)
                     all_reviews.extend(reviews)  # 모든 리뷰 데이터에 추가
@@ -181,7 +185,7 @@ def process_urls(folder_path):
         # 각 txt 파일에 대한 리뷰 데이터를 별도의 CSV 파일로 저장
         if reviews_for_current_file:
             # output_file = f"{brand_name}_reviews.csv"
-            output_file = f"{brand_name}_row_reviews.csv"
+            output_file = f"{brand_name}_high_reviews.csv"
             with open(output_file, "w", newline="", encoding="utf-8-sig") as csvfile:
                 fieldnames = ["브랜드", "의류코드", "리뷰", "별점", "작성일"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -194,6 +198,8 @@ def process_urls(folder_path):
 
     # 모든 리뷰 데이터를 한 번에 CSV로 저장
     # output_file_all = "all_reviews.csv"
+    # output_file_all = "all_low_reviews.csv"
+    output_file_all = "all_high_reviews.csv"
     with open(output_file_all, "w", newline="", encoding="utf-8-sig") as csvfile:
         fieldnames = ["브랜드", "의류코드", "리뷰", "별점", "작성일"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
