@@ -8,7 +8,7 @@ from torch.utils.data import TensorDataset, DataLoader, RandomSampler
 import time
 import datetime
 
-train_data_path = "Data/train_data.csv"
+train_data_path = "./Data/train_data.csv"
 dataset = pd.read_csv(train_data_path, sep=',', encoding='utf-8').dropna(axis=0)
 text = list(dataset['리뷰'].values)
 label = dataset['별점'].values

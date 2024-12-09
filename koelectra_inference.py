@@ -12,7 +12,7 @@ model.to(device)
 model.eval()
 
 # 데이터 셋은 전체 데이터셋을 넣기
-data_path = "Data/processed_data.csv"
+data_path = "Data/ALL_data.csv"
 dataset = pd.read_csv(data_path).dropna(axis=0)
 dataset = dataset[dataset['별점'] != 0]
 text = list(dataset['리뷰'].values)
