@@ -24,7 +24,7 @@
   "summary_type": "first",
   "summary_use_proj": true,
   "torch_dtype": "float32",
-  "transformers_version": "4.44.1",
+  "transformers_version": "4.46.2",
   "type_vocab_size": 2,
   "use_cache": true,
   "vocab_size": 35000
