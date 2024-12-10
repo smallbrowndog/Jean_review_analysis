@@ -1,7 +1,7 @@
 import MeCab
 import pandas as pd
 
-stop_word_list = ['영화', '영상', '배우', '장면']
+stop_word_list = ['모드나인','토피','페이탈리즘','브랜디드','무신사스탠다드']
 
 def extract_noun(text):
     t = MeCab.Tagger()
@@ -18,12 +18,11 @@ def extract_noun(text):
                     nouns.append(word)
     return nouns
 
-data_path = 'ratings_train2.txt'
+data_path = 'ratings_result.csv'
+dataset = pd.read_csv(data_path).dropna(axis=0)
 
-dataset = pd.read_csv(data_path, sep='\t').dropna(axis=0)
-
-pos_text = list(dataset[dataset['label'] == 1]['document'].values)
-neg_text = list(dataset[dataset['label'] == 0]['document'].values)
+pos_text = list(dataset[dataset['예측 별점'] == 1]['리뷰'].values)
+neg_text = list(dataset[dataset['예측 별점'] == 0]['리뷰'].values)
 
 print(neg_text[:3])
 
@@ -40,7 +39,7 @@ print(f'전체 명사의 수: {len(dictionary)}')
 # 5개 이하는 제거, 1000개 중 50퍼센트 이상의 문장에서 나온 단어는 빼기(영화 등 일반적인 단어를 제외하기 위해서)
 # 내가 쓸때는 no_above는 0.5 ~ 0.7 로 조정 가능
 # 지나치게 일반적인 단어가 있을때는 차후에 불용어로 처리할 수 있다.
-dictionary.filter_extremes(no_below=5, no_above=0.5)
+dictionary.filter_extremes(no_below=10, no_above=0.5)
 print(f'전체 명사의 수에서 필터를 적용한 개수: {len(dictionary)}')
 print(dictionary.token2id)
 

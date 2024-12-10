@@ -14,7 +14,7 @@ text = list(dataset['리뷰'].values)
 label = dataset['별점'].values
 
 # 클래스 레이블 변환
-label_mapping = {1: 0, 2: 0, 3: 0, 5: 1}  # 1, 2, 3을 0으로 묶고, 5를 1으로 매핑
+label_mapping = {1: 0, 2: 0, 3: 0, 4: 1, 5: 1}  # 1, 2, 3을 0으로 묶고, 4, 5를 1으로 매핑
 label = np.array([label_mapping[l] for l in label])
 label = label.tolist()
 
