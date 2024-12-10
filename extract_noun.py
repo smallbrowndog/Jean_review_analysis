@@ -18,7 +18,7 @@ def extract_noun(text):
                     nouns.append(word)
     return nouns
 
-data_path = 'ratings_result.csv'
+data_path = 'Data/ratings_result.csv'
 dataset = pd.read_csv(data_path).dropna(axis=0)
 
 pos_text = list(dataset[dataset['예측 별점'] == 1]['리뷰'].values)
