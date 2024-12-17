@@ -75,17 +75,13 @@
 
 [25918 rows x 5 columns]
 
-한 제품당 300 ~ 400개의 리뷰만 추출되는 한계가 있어 각 브랜드별 25개의 제품을 선정하여 추출하였고 4,5점 데이터는 55,998개, 0,1,2,3점 데이터는 25,918개, 총 81,916개의 데이터가 수집된것을 볼 수 있다.
+한 제품당 300 ~ 400개의 리뷰만 추출되는 한계가 있어 각 브랜드별 25개의 제품을 선정하여 추출하였고 긍정데이터로 분류할 4점 이상 데이터는 55,998개, 부정데이터로 분류할 3점 이하 데이터는 25,918개, 총 81,916개의 데이터가 수집된것을 볼 수 있다.
 
 ### 3-2 데이터 전처리
 위 리뷰를 확인하여보니 작성일이 일주일이내일때는 **N일전**으로 작성되어 있고, 리뷰에는 **\<br>**, **더보기**가 포함되어 있고 중복값이 포함되어 있어 해당 데이터를 삭제하였다.
+이후 0점으로 작성된 리뷰도 확인해본결과 부정적 리뷰와 긍정적 리뷰가 섞여있는것을 확인하여 **0점**도 삭제처리 하여 최종적으로 데이터를 추출하였다.
 
-이후 0점으로 작성된 리뷰도 확인해본결과 부정적 리뷰와 긍정적 리뷰가 섞여있는것을 확인
-
-
-[데이터 링크](https://www.kaggle.com/datasets/kijukim99/ai-3-2-project)
-
-[ 데이터 구성 ]
+[ 데이터 ](https://www.kaggle.com/datasets/kijukim99/ai-3-2-project)
 
 |        | 브랜드    | 의류코드     | ...  | 별점  | 작성일       |
 |--------|--------|----------|------|-----|-----------|
@@ -103,7 +99,21 @@
 
 [46165 rows x 5 columns]
 
-총 46,165개의 데이터가 수집되어있는것을 볼 수 있다.
+전처리를 통해 긍정데이터 32,901개, 부정데이터 13,264개로 총 46,165개의 데이터를 수집하였다.
+
+### 3-3 탐색적 데이터 분석
+![brand_count](https://github.com/user-attachments/assets/b2e14eb8-f993-4a6b-b7cc-eefe84d831d9)
+우선 브랜드별 데이터의 분포를 살펴보았다. 긍정, 부정 데이터를 나누어 추출하면서 반대의 데이터가 추출될 경우 강제로 멈추도록 했기때문에 데이터의 개수에 차이가 남을 알 수 있다. 이는 판매량과 연관이 있다고 생각했다.
+
+<div style="display: flex; justify-content: space-around;">
+<img src="https://github.com/user-attachments/assets/ce997e09-3e4c-445e-a24b-daea824cb988" alt="모드나인" style="width:50%; height:auto;" />
+<img src="https://github.com/user-attachments/assets/e7fced14-8c22-48d8-af60-6b58a3803962" alt="무신사스탠다드" style="width:50%; height:auto;" />
+</div>
+<div style="display: flex; justify-content: space-around;">
+<img src="https://github.com/user-attachments/assets/c58d7ca1-1f80-4b7d-8d89-10640188703a" alt="브랜디드" style="width:50%; height:auto;" />
+<img src="https://github.com/user-attachments/assets/b95f1b78-99b4-47da-b638-ba5ff8e307b7" alt="토피" style="width:50%; height:auto;" />
+</div>
+<img src="https://github.com/user-attachments/assets/35b6c9db-d92a-4da3-953e-e8aa51b8275c" alt="페이탈리즘" style="width:50%; height:auto;" />
 
 ## 느낀점 및 보완방향
 내가 직접 데이터를 수집하기 위해 코드를 작성하고 원하는 결과가 나오도록 수정하는 과정에서 많은 시행착오가 있었지만 결과적으로 원하는 데이터가 수집되는것을 확인했을때 많은 기쁨을 느꼈다.
