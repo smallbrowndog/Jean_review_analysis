@@ -1,4 +1,4 @@
-## KoELECTRA를 활용한 무신사 데님 리뷰 분석
+# KoELECTRA를 활용한 무신사 데님 리뷰 분석
 ![image](https://github.com/user-attachments/assets/178fbb32-3975-40c0-997d-c514f2e20bcb)
 
 ## 1. 개요
@@ -103,19 +103,40 @@
 
 ### 3-3 탐색적 데이터 분석
 ![brand_count](https://github.com/user-attachments/assets/b2e14eb8-f993-4a6b-b7cc-eefe84d831d9)
-우선 브랜드별 데이터의 분포를 살펴보았다. 긍정, 부정 데이터를 나누어 추출하면서 반대의 데이터가 추출될 경우 강제로 멈추도록 했기때문에 데이터의 개수에 차이가 남을 알 수 있다. 이는 판매량과 연관이 있다고 생각했다.
+우선 브랜드별 데이터의 분포를 살펴보았다. 긍정, 부정 데이터를 나누어 추출하면서 반대의 데이터가 추출될 경우 강제로 멈추도록 했기때문에 데이터의 개수에 차이가 남을 알 수 있다.
 
-<div style="display: flex; justify-content: space-around;">
-<img src="https://github.com/user-attachments/assets/ce997e09-3e4c-445e-a24b-daea824cb988" alt="모드나인" style="width:50%; height:auto;" />
-<img src="https://github.com/user-attachments/assets/e7fced14-8c22-48d8-af60-6b58a3803962" alt="무신사스탠다드" style="width:50%; height:auto;" />
-</div>
-<div style="display: flex; justify-content: space-around;">
-<img src="https://github.com/user-attachments/assets/c58d7ca1-1f80-4b7d-8d89-10640188703a" alt="브랜디드" style="width:50%; height:auto;" />
-<img src="https://github.com/user-attachments/assets/b95f1b78-99b4-47da-b638-ba5ff8e307b7" alt="토피" style="width:50%; height:auto;" />
-</div>
-<img src="https://github.com/user-attachments/assets/35b6c9db-d92a-4da3-953e-e8aa51b8275c" alt="페이탈리즘" style="width:50%; height:auto;" />
+![review_len_count](https://github.com/user-attachments/assets/8364acea-6f1d-423e-ae81-6bbc47de6558)
+대부분의 리뷰는 50자를 넘지 않는 리뷰가 많았다.
+
+![rating_count](https://github.com/user-attachments/assets/4a8586bc-600c-4de4-948a-4e80fe5958b5)
+전체 데이터중 리뷰 별점 분포를 알아보았다. 모든 데이터를 추출한 것이 아니라 **높은 평점 순**으로 정렬하여 한정적인 개수로 리뷰 데이터를 수집했기때문에 5점이 대부분을 차지했고 4점은 수가 거의 없는 것을 볼 수 있다.
+
+또한 1,2점의 경우보다 3점의 경우가 더 많은것도 확인할 수 있었다.
+
+![pos_neg_count](https://github.com/user-attachments/assets/154e8a8d-1069-4417-b75d-f7af09455b09)
+이를 기반으로 긍, 부정의 분포를 살펴보니 1:2.84의 비율로 데이터가 분포 되어있는 것을 알 수 있었다.
+
+
+<img src="https://github.com/user-attachments/assets/c04a1c49-b51e-4540-b1f9-0b323ee34259" alt="긍, 부정 분포"  />
+
+브랜드별 긍, 부정 데이터 분포도 추가로 알아보았다.
+
+## 4. 학습 데이터 구축
+각각 긍, 부정 데이터에서 70퍼센트씩을 추출하여 학습데이터로 설정하였다.
+
+## 5. KoELECTRA
+### 5-1 학습
+![train_val_accuracy](https://github.com/user-attachments/assets/37be0b1c-262c-4c9a-8ac7-2b069200732b)
+위 그래프처럼 학습 정확도는 0.96까지 높아진것을 알 수 있고 검증 정확도 또한 0.86까지 상당히 높아진 정확도를 가짐을 알 수 있다.
+
+![train_loss](https://github.com/user-attachments/assets/eb5515e3-23f9-4ce5-9489-38e6e26c3e88)
+loss의 경우에도 0.4에서 시작해 0.21까지 떨어져 성능이 향상됨을 알 수 있었다.
+
+### 5-2 결과
+
+
 
 ## 느낀점 및 보완방향
 내가 직접 데이터를 수집하기 위해 코드를 작성하고 원하는 결과가 나오도록 수정하는 과정에서 많은 시행착오가 있었지만 결과적으로 원하는 데이터가 수집되는것을 확인했을때 많은 기쁨을 느꼈다.
-해당 데이터를 전처리하며
+해당 데이터를 전처리하며 뜻밖의 결과를 알아채기도 했고 
 
