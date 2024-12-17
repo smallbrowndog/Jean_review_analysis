@@ -1,4 +1,3 @@
-import csv
 from itertools import count
 
 from selenium import webdriver
