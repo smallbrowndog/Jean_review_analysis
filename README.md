@@ -83,8 +83,6 @@
 
 [ 데이터 ](https://www.kaggle.com/datasets/kijukim99/ai-3-2-project)
 
-https://www.kaggle.com/datasets/kijukim99/ai-3-2-project
-
 |        | 브랜드    | 의류코드     | ...  | 별점  | 작성일       |
 |--------|--------|----------|------|-----|-----------|
 | 0      | 모드나인   | 1037219  | ...  | 1   | 22.10.07  |
