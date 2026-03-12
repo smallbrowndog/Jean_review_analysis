@@ -1,5 +1,7 @@
 import pandas as pd
 
+# 평점 낮은데이터와 높은 데이터를 모두 가져와 하나의 데이터로 합침
+
 low = pd.read_csv('./Data/Low_Data/Processed_Data/processed_low_data.csv')
 high = pd.read_csv('./Data/High_Data/Processed_Data/processed_high_data.csv')
 
