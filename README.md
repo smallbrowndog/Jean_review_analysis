@@ -1,6 +1,21 @@
 # KoELECTRA를 활용한 무신사 데님 리뷰 분석
 ![image](https://github.com/user-attachments/assets/178fbb32-3975-40c0-997d-c514f2e20bcb)
 
+<!-- 
+badge icon 참고 사이트
+https://github.com/danmadeira/simple-icon-badges
+-->
+<div align=center><h1>📚 STACKS</h1></div>
+
+<div align=center> 
+<!--   https://simpleicons.org/
+  <img src="https://img.shields.io/badge/[아이콘 검색]-[색상코드]?style=for-the-badge&logo=[아이콘 검색]&logoColor=white"> -->
+  <img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white">
+  <br>
+  <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
+<img src="https://img.shields.io/badge/pycharm-%23000000.svg?&style=for-the-badge&logo=pycharm&logoColor=white" />
+</div>
+
 ## 1. 개요
 ### 1-1 무신사 데님 리뷰로 결정한 이유
 29CM, 한섬 EQL, 무신사, SSF샵 등의 많은 온라인 쇼핑몰 중에서도 무신사를 선택한 이유는 여러가지가 있다.
