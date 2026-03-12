@@ -6,7 +6,10 @@ from collections import defaultdict  # defaultdict를 사용하여 빈도수 합
 import matplotlib.pyplot as plt
 import numpy as np
 
-stop_word_list = ['모드나인','토피','페이탈리즘','브랜디드','무신사스탠다드', '바지', '청바지', '사람', '페이탈', '신발', '제품', '상품']
+# 단어 빈도수 추출
+
+# 불용어처리
+stop_word_list = ['모드나인','토피','페이탈리즘','브랜디드','무신사스탠다드', '바지', '청바지', '사람', '페이탈', '신발', '제품', '상품', '모드', '나인']
 
 def extract_noun(text):
     t = MeCab.Tagger()
@@ -94,3 +97,4 @@ plt.title('단어 빈도수')
 
 plt.savefig('./Graph/many.jpg')
 plt.show()
+
